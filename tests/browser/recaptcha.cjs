@@ -22,7 +22,8 @@ test('real Chromium preserves explicit inputs and private token output', async (
     const options = parse(['--url', `http://127.0.0.1:${server.address().port}/`, '--sitekey', 'fixture-key', '--action', 'test_action', '--output', output]);
     const sandboxedChromium = { launch: async launchOptions => {
       assert.equal(launchOptions.chromiumSandbox, true);
-      const browser = await chromium.launch(launchOptions);
+      // 仅测试启用该标记，允许 CDP 回读实际启动参数。
+      const browser = await chromium.launch({ ...launchOptions, args: ['--enable-automation'] });
       try {
         const session = await browser.newBrowserCDPSession();
         const command = await session.send('Browser.getBrowserCommandLine');
