@@ -32,7 +32,8 @@ def validate_tree(source):
     source = Path(source).resolve()
     lock = load_lock()
     head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip()
-    if head != lock["revision"] or sha256(source / "Cargo.lock") != lock["cargo_lock_sha256"]:
+    effective_lock = lock.get("patched_cargo_lock_sha256", lock["cargo_lock_sha256"])
+    if head != lock["revision"] or sha256(source / "Cargo.lock") != effective_lock:
         raise ValueError("upstream revision/Cargo.lock differs from lock")
     diff = subprocess.check_output(["git", "diff", "--no-ext-diff", "--no-color", "HEAD", "--"], cwd=source)
     if diff != (ROOT / "patches/integration.patch").read_bytes():

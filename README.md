@@ -1,4 +1,4 @@
-# cfsolve 通用 skill 构建源码 · 3.0.0
+# cfsolve 通用 skill 构建源码 · 3.0.1
 
 这套维护源码把固定版本 [cfsolve](https://github.com/chris124567/cfsolve) 与通用请求封装组合起来，供自有或明确授权系统的自动化测试与研究使用。运行时入口在 [`skill/cloudflare-bypass-cfsolve/SKILL.md`](skill/cloudflare-bypass-cfsolve/SKILL.md)。
 
@@ -14,7 +14,7 @@ python3 tests/test_package.py
 node --test tests/test_recaptcha.cjs
 python3 tools/build.py --source .work/upstream
 python3 tools/package.py --source .work/upstream --out artifacts
-python3 tools/verify_package.py artifacts/cloudflare-bypass-cfsolve-v3.0.0-linux-x64.tar.gz
+python3 tools/verify_package.py artifacts/cloudflare-bypass-cfsolve-v3.0.1-linux-x64.tar.gz
 ```
 
 最后的文件名随当前平台变化。prepare 不覆盖已有目录；需重新准备时选新目录。build 会下载 Cargo 依赖，在同一固定源码上运行库测试、CLI 单元测试和回环 HTTP 回归，再编译 challenge 与 cfapi。release 构建保留 debug assertions，确保内部参数约定也受验证；Rust 和 C/C++ 编译会映射源码路径，减少分发二进制携带本机目录。构建记录写在源码工作目录，打包前重新检查源码和二进制摘要。
@@ -40,3 +40,5 @@ Linux 产物是 glibc 动态链接包，不能直接当作 Alpine/musl 包使用
 上游更新时先检查差异，更新 `upstream.lock.json` 的 revision、Rust 版本、Cargo.lock 与 profile 摘要，以及随包 profile，再在新目录 prepare。若补丁不能应用，停止并重做最小适配，不覆盖整份旧上游源文件。`tools/check_upstream.py --output .work/upstream-candidate.json` 只检查，不改变固定版本。旧版位置参数、gcapi 名称和 fetch/use_clearance 示例已收敛到 cfapi 的明确 schema。
 
 本地测试不访问线上 Cloudflare 目标。CI 通过证明对应构建和回归通过，不等于当前所有站点可解。
+
+3.0.1 保留上游 commit，通过受检补丁更新存在已知公告的兼容依赖版本。上游原始 Cargo.lock 和补丁后的 Cargo.lock 分别记录摘要；准备、构建和打包均核验对应版本。修复范围及仍保留的依赖事项见 [DEPENDENCIES.md](DEPENDENCIES.md)。

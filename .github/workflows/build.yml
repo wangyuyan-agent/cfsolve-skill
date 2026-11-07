@@ -8,7 +8,7 @@ permissions:
   contents: read
 concurrency:
   group: build-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   build:
     strategy:
@@ -52,6 +52,7 @@ jobs:
             ~/.cargo/git
             .work/upstream/target
           key: cfsolve-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('upstream.lock.json', 'patches/**', 'overlay/**') }}
+          restore-keys: cfsolve-${{ runner.os }}-${{ runner.arch }}-
       - name: Offline helper tests
         run: |
           python3 -m py_compile tools/*.py tests/*.py skill/cloudflare-bypass-cfsolve/scripts/*.py

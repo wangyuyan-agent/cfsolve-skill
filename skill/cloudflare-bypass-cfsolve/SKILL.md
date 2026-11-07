@@ -3,7 +3,7 @@ name: cloudflare-bypass-cfsolve
 description: 使用 cfsolve 调试明确授权的 Cloudflare 挑战页、Turnstile token 和求解后的 HTTP 会话复用。适用于请求级验证流程与失败诊断；附带可选的普通 reCAPTCHA v3 浏览器辅助程序。
 license: MIT
 metadata:
-  version: 3.0.0
+  version: 3.0.1
 ---
 
 # cfsolve 通用工作流
