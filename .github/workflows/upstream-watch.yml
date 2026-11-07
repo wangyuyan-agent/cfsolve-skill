@@ -1,0 +1,26 @@
+name: Check cfsolve upstream
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * 1'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Compare pinned and latest commits
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 tools/check_upstream.py --output .work/upstream-candidate.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: upstream-candidate
+          path: .work/upstream-candidate.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14

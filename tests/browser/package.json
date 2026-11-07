@@ -1,0 +1,6 @@
+{
+  "name": "cfsolve-skill-browser-tests",
+  "private": true,
+  "version": "1.0.0",
+  "devDependencies": { "playwright": "1.65.0" }
+}

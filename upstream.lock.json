@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "skill_version": "3.0.0",
+  "repository": "https://github.com/chris124567/cfsolve.git",
+  "revision": "59aef833d271dfdb86b0330c16f737b7b5010d52",
+  "rust_toolchain": "1.98.0",
+  "cargo_lock_sha256": "64d7ec66a1a16a8d52c50240ca8cd91c1f9760ba1b13c83d59d82f66dfc5a64f",
+  "profile_sha256": {
+    "profiles/safari-26-ios.json": "2ee00ccbd66b7fc64a87927f7a08b8f040d4ff67c8fe2f93696590b4613f13fa",
+    "profiles/safari-26-ios/answers.json": "2284104469a43e40af8dee553a1923b130c495ae0efc47d170da1f87a80cfa37",
+    "profiles/safari-26-ios/challenge-page-answers.json": "4930f0b41ab1a1f64249f6bdefdb9793d5d2f2c085ae4bf84a98892b204391ed"
+  }
+}

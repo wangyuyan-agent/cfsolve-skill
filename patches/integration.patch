@@ -1,0 +1,85 @@
+diff --git a/src/http.rs b/src/http.rs
+index b4f4c3a..803556f 100644
+--- a/src/http.rs
++++ b/src/http.rs
+@@ -1,5 +1,6 @@
+ //! HTTP transport and response handling for challenge sessions.
+ 
++mod api;
+ mod client;
+ mod decode;
+ mod header_order;
+@@ -8,6 +9,7 @@ mod requests;
+ 
+ #[cfg(feature = "internals")]
+ pub(crate) use client::Proxied;
++pub use api::{ApiRequest, api_request};
+ pub use client::{BrowserClient, ClientHello, Requests};
+ pub use decode::{ResponseMetrics, header_text, read_encoded, text_headers};
+ #[cfg(feature = "internals")]
+diff --git a/src/http/client.rs b/src/http/client.rs
+index 582b1dc..cccce87 100644
+--- a/src/http/client.rs
++++ b/src/http/client.rs
+@@ -116,6 +116,8 @@ impl BrowserClient {
+             .cookie_provider(Arc::clone(&jar))
+             .redirect(Policy::limited(5))
+             .timeout(Duration::from_secs(30));
++        // 不依赖宿主代理配置；显式代理在求解与业务请求之间保持一致。
++        builder = builder.no_proxy();
+         if let Some(proxy) = proxy {
+             builder = builder.proxy(Proxy::all(proxy)?);
+         }
+diff --git a/src/solver.rs b/src/solver.rs
+index b4a5e48..8a4b394 100644
+--- a/src/solver.rs
++++ b/src/solver.rs
+@@ -176,10 +176,37 @@ impl Browser {
+         expect: Expect<'_>,
+         options: &Options,
+     ) -> Result<Outcome, Error> {
++        self.solved_with_client(start, expect, options)
++            .await
++            .map(|(_, outcome)| outcome)
++    }
++
++    /// Clears a challenge and returns the original client, retaining every cookie,
++    /// its scope, and the original transport/proxy settings.
++    pub async fn clear_session(
++        &self,
++        page: &Url,
++        options: &Options,
++    ) -> Result<BrowserClient, Error> {
++        let (client, outcome) = self
++            .solved_with_client(Start::Navigate(page), Expect::ChallengePage, options)
++            .await?;
++        match outcome {
++            Outcome::Cleared(_) => Ok(client),
++            Outcome::Token(_) => unreachable!("challenge-page mode cannot return a widget token"),
++        }
++    }
++
++    async fn solved_with_client(
++        &self,
++        start: Start<'_>,
++        expect: Expect<'_>,
++        options: &Options,
++    ) -> Result<(BrowserClient, Outcome), Error> {
+         let client = self.client(options)?;
+         let sink = options.sink.as_deref().unwrap_or(&Discard);
+         let (document, navigation) = open(&client, start).await?;
+-        session::native(
++        let outcome = session::native(
+             &client,
+             sink,
+             document,
+@@ -189,7 +216,8 @@ impl Browser {
+             &self.solve,
+         )
+         .await
+-        .map_err(Error::classify)
++        .map_err(Error::classify)?;
++        Ok((client, outcome))
+     }
+ 
+     async fn clear_from(&self, start: Start<'_>, options: &Options) -> Result<Clearance, Error> {

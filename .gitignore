@@ -1,0 +1,16 @@
+.work/
+artifacts/
+target/
+__pycache__/
+*.pyc
+*.body
+cookies*.json
+requests*.json
+*.env
+.env
+.env.*
+*.log
+*.pem
+*.key
+node_modules/
+.DS_Store
