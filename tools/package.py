@@ -17,7 +17,7 @@ RUNTIME_FILES = (
     "references/troubleshooting.md", "references/maintenance.md",
 )
 SOURCE_FILES = (
-    "LICENSE", "README.md", "SECURITY.md", "DEPENDENCIES.md", "upstream.lock.json", ".gitignore",
+    "LICENSE", "README.md", "README.zh-CN.md", "SECURITY.md", "DEPENDENCIES.md", "upstream.lock.json", ".gitignore",
     "overlay/src/http/api.rs", "overlay/examples/cfapi.rs", "patches/integration.patch",
     "tools/common.py", "tools/prepare.py", "tools/build.py", "tools/package.py",
     "tools/verify_package.py", "tools/check_upstream.py",
