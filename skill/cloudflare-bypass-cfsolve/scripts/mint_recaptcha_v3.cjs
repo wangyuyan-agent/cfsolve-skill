@@ -46,7 +46,7 @@ async function deadline(promise, milliseconds) {
 }
 
 async function mint(options, chromium, env = process.env, executionTimeout = 30000) {
-  const browser = await chromium.launch({ headless: true, executablePath: options['--chrome'] || env.CHROME_PATH || undefined, proxy: proxyFromEnvironment(options, env) });
+  const browser = await chromium.launch({ headless: true, chromiumSandbox: true, executablePath: options['--chrome'] || env.CHROME_PATH || undefined, proxy: proxyFromEnvironment(options, env) });
   try {
     const context = await browser.newContext();
     const page = await context.newPage();

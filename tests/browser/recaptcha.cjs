@@ -20,7 +20,22 @@ test('real Chromium preserves explicit inputs and private token output', async (
   try {
     const output = path.join(directory, 'token');
     const options = parse(['--url', `http://127.0.0.1:${server.address().port}/`, '--sitekey', 'fixture-key', '--action', 'test_action', '--output', output]);
-    assert.equal((await mint(options, chromium, {})).saved, true);
+    const sandboxedChromium = { launch: async launchOptions => {
+      assert.equal(launchOptions.chromiumSandbox, true);
+      const browser = await chromium.launch(launchOptions);
+      try {
+        const session = await browser.newBrowserCDPSession();
+        const command = await session.send('Browser.getBrowserCommandLine');
+        assert(!command.arguments.includes('--no-sandbox'));
+        assert(!command.arguments.includes('--disable-setuid-sandbox'));
+        await session.detach();
+        return browser;
+      } catch (error) {
+        await browser.close();
+        throw error;
+      }
+    } };
+    assert.equal((await mint(options, sandboxedChromium, {})).saved, true);
     assert.equal(fs.readFileSync(output, 'utf8'), 'fixture:fixture-key:test_action\n');
     assert.equal(fs.statSync(output).mode & 0o777, 0o600);
   } finally {

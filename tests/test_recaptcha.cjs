@@ -12,11 +12,12 @@ test('explicit target, key and action reach browser; token is private and never 
     const options = parse(['--url', 'https://authorized-test.example/login', '--sitekey', 'test-key', '--action', 'login', '--output', output]);
     const calls = {};
     const page = { goto: async url => { calls.url = url; }, url: () => calls.url, waitForFunction: async () => {}, evaluate: async (_fn, args) => { calls.args = args; return 'LOCAL_DUMMY_TOKEN'; } };
-    const chromium = { launch: async () => ({ newContext: async () => ({ newPage: async () => page }), close: async () => { calls.closed = true; } }) };
+    const chromium = { launch: async options => { calls.launch = options; return { newContext: async () => ({ newPage: async () => page }), close: async () => { calls.closed = true; } }; } };
     const result = await mint(options, chromium, {});
     assert.equal(calls.url, 'https://authorized-test.example/login');
     assert.deepEqual(calls.args, { sitekey: 'test-key', action: 'login' });
     assert.equal(calls.closed, true);
+    assert.equal(calls.launch.chromiumSandbox, true);
     assert.equal(fs.readFileSync(output, 'utf8'), 'LOCAL_DUMMY_TOKEN\n');
     assert.equal(fs.statSync(output).mode & 0o777, 0o600);
     assert(!JSON.stringify(result).includes('LOCAL_DUMMY_TOKEN'));
